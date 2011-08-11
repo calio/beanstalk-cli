@@ -1,0 +1,38 @@
+#!/bin/env perl
+
+use warnings;
+use strict;
+
+use Beanstalk::Client;
+
+my $host = "127.0.0.1";
+my $port = 11300;
+
+print("beanstalkd cli\nbeanstalk $host:$port>");
+
+my $client = Beanstalk::Client->new({servers =>"$host:$port"});
+
+my $job;
+
+our $line = <STDIN>;
+chomp($line);
+while ($line ne "exit") {
+    my @args = split(' ', $line);
+    our $cmd = $args[0];
+    if ($cmd eq "r" || $cmd eq "reserve") {
+        $job = $client->reserve();
+        print($job->{"id"}, " ", $job->{"data"}, "\n");
+    } elsif ($cmd eq "p" || $cmd eq "put") {
+        $job = $client->put({
+                        priority => 0,
+                        ttr      => 100,,
+                        delay    => 0,
+                        }, $args[1]);
+        print($job->{"data"}, "\n");
+    } elsif ($cmd eq "d" || $cmd eq "delete") {
+        print($client->delete($args[1]), "\n");
+    }
+    print("beanstalk $host:$port>");
+    $line = <STDIN>;
+    chomp($line);
+}
