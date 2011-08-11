@@ -3,10 +3,18 @@
 use warnings;
 use strict;
 
+use Getopt::Std;
 use Beanstalk::Client;
 
-my $host = "127.0.0.1";
-my $port = 11300;
+my %opts;
+getopt('ph', \%opts);
+my $host = $opts{'h'} || "127.0.0.1";
+my $port = $opts{'p'} || 11300;
+
+if ($opts{'?'}) {
+    print "Usage:\n$0 [-h host] [-p port]\n";
+    exit();
+}
 
 print("beanstalkd cli\nbeanstalk $host:$port>");
 
